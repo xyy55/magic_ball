@@ -14,7 +14,7 @@ app.get('/', function (req, res) { //创建主页
 
 let done_left = 0;
 let done_top = 0;
-let total_width = -400;
+let total_width = -300;
 
 
 io.on('connection', function (socket) {
@@ -53,7 +53,16 @@ io.on('connection', function (socket) {
     }
   });
   socket.on('disconnect', function (data) {
-    return
+    total_width -= socket.arg.width;
+    done_left -= socket.arg.width;
+    for(let i in io.sockets.sockets){
+      soc = io.sockets.sockets[i];
+      if(soc.arg.before_width > socket.arg.before_width){
+        soc.arg.before_width -= socket.arg.width;
+      }
+      soc.arg.done_left = done_left - soc.arg.before_width;
+      soc.emit('move_ball', soc.arg);
+    }
   })
 })
 
